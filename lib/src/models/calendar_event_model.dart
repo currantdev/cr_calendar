@@ -9,7 +9,7 @@ class CalendarEventModel {
     this.eventColor = Colors.green,
   });
 
-  String id;
+  int id;
   String name;
   DateTime begin;
   DateTime end;
