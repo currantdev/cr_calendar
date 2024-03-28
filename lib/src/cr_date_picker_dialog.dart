@@ -20,7 +20,7 @@ enum LandscapeDaysResizeMode {
 /// If you need to hide some element (e.g. picker title widget) pass SizedBox()
 /// to [DateTitleBuilder].
 @immutable
-class DatePickerProperties {
+final class DatePickerProperties {
   /// Default constructor.
   const DatePickerProperties({
     required this.onDateRangeSelected,
@@ -117,10 +117,10 @@ class DatePickerProperties {
 /// To share [isDialogMode] through the calendar.
 class DatePickerSettings extends InheritedWidget {
   const DatePickerSettings({
-    required Widget child,
+    required super.child,
     required this.landscapeDaysResizeMode,
-    Key? key,
-  }) : super(key: key, child: child);
+    super.key,
+  });
 
   final LandscapeDaysResizeMode landscapeDaysResizeMode;
 
@@ -137,8 +137,8 @@ class DatePickerSettings extends InheritedWidget {
 class CrDatePickerDialog extends StatefulWidget {
   const CrDatePickerDialog({
     required this.pickerProperties,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   /// Properties for customization of date picker dialog.
   final DatePickerProperties pickerProperties;
@@ -162,8 +162,8 @@ class _CrDatePickerDialogState extends State<CrDatePickerDialog> {
 
   @override
   void initState() {
-    _initPicker();
     super.initState();
+    _initPicker();
   }
 
   @override

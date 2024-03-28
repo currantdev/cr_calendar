@@ -1,3 +1,4 @@
+import 'package:cr_calendar/src/contract.dart';
 import 'package:flutter/material.dart';
 
 ///Represent calendar day body
@@ -10,8 +11,8 @@ class DayItem extends StatelessWidget {
     this.isWithinMonth = true,
     this.nonFitEventCount = 0,
     this.isWithinRange = false,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final Widget? child;
   final int day;
@@ -27,7 +28,10 @@ class DayItem extends StatelessWidget {
         Container(
           alignment: Alignment.topCenter,
           decoration: BoxDecoration(
-            border: Border.all(width: 0.5, color: Colors.black12),
+            border: Border.all(
+              width: Contract.kDefaultDayItemBorderWidth,
+              color: Colors.black12,
+            ),
             color: isSelectedDay || isWithinRange ? Colors.black12 : null,
           ),
           child: Column(
@@ -81,8 +85,8 @@ class DayItem extends StatelessWidget {
       return Colors.white;
     } else {
       return isWithinMonth
-          ? Theme.of(context).textTheme.caption?.color
-          : Theme.of(context).textTheme.caption?.color?.withOpacity(0.75);
+          ? Theme.of(context).textTheme.bodySmall?.color
+          : Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.75);
     }
   }
 }
