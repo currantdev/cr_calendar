@@ -26,11 +26,12 @@ class MonthCalendarWidget extends StatefulWidget {
     required this.onDaySelected,
     required this.onRangeSelected,
     required this.touchMode,
+    required this.weeksToShow,
     this.currentDay,
     this.dayItemBuilder,
     this.onDayTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final DayItemBuilder? dayItemBuilder;
   final int? currentDay;
@@ -47,6 +48,7 @@ class MonthCalendarWidget extends StatefulWidget {
   final Function(List<CalendarEventModel>, Jiffy)? onDaySelected;
   final Function(List<CalendarEventModel>)? onRangeSelected;
   final TouchMode touchMode;
+  final List<int> weeksToShow;
 
   @override
   MonthCalendarWidgetState createState() => MonthCalendarWidgetState();
@@ -86,8 +88,8 @@ class MonthCalendarWidgetState extends State<MonthCalendarWidget> {
 
     if (beginRange == null ||
         endRange == null ||
-        widget.begin.isAfter(endRange) ||
-        widget.end.isBefore(beginRange)) {
+        widget.begin.isAfter(endRange.toJiffy()) ||
+        widget.end.isBefore(beginRange.toJiffy())) {
       return;
     }
 
@@ -114,7 +116,9 @@ class MonthCalendarWidgetState extends State<MonthCalendarWidget> {
     if (selectedDay != null) {
       if (selectedDay.isSameOrAfter(widget.begin) &&
           selectedDay.isSameOrBefore(widget.end)) {
-        if (Jiffy(widget.begin).add(days: index).isSame(selectedDay)) {
+        if (Jiffy.parseFromJiffy(widget.begin)
+            .add(days: index)
+            .isSame(selectedDay)) {
           return true;
         }
       }
@@ -143,7 +147,7 @@ class MonthCalendarWidgetState extends State<MonthCalendarWidget> {
       (index) => Container(
         height: widget.itemHeight,
         child: Row(
-          children: _buildDays(index),
+          children: _buildDays(widget.weeksToShow[index], index),
         ),
       ),
     );
@@ -152,16 +156,15 @@ class MonthCalendarWidgetState extends State<MonthCalendarWidget> {
   }
 
   /// Build days in week
-  List<Widget> _buildDays(int week) {
+  List<Widget> _buildDays(int week, int row) {
     final days = List.generate(Contract.kWeekDaysCount, (i) {
       final index = week * Contract.kWeekDaysCount + i;
       final day = _getDisplayDay(index);
       final column = index % Contract.kWeekDaysCount;
-      final row = index ~/ Contract.kWeekDaysCount;
+      final tappedDate = Jiffy.parseFromJiffy(widget.begin).add(days: index);
 
       return GestureDetector(
         onTap: () {
-          final tappedDate = Jiffy(widget.begin).add(days: index);
           widget.onDayTap?.call(tappedDate);
           if (widget.touchMode == TouchMode.singleTap) {
             _performDaySelecting(tappedDate);
@@ -173,16 +176,20 @@ class MonthCalendarWidgetState extends State<MonthCalendarWidget> {
         child: DayItemWidget(
           width: widget.itemWidth,
           body: widget.dayItemBuilder != null
-              ? widget.dayItemBuilder?.call(DayItemProperties(
-                  dayNumber: day.first,
-                  isInMonth: day.second,
-                  isCurrentDay: day.first == widget.currentDay && day.second,
-                  notFittedEventsCount:
-                      widget.overflowedEvents.weeks[row].eventCount[column],
-                  isSelected: _isSelectedDate(index),
-                  isInRange: _isDateInRange(index),
-                  isFirstInRange: _isDateFirstRange(index),
-                  isLastInRange: _isDateLastRange(index)))
+              ? widget.dayItemBuilder?.call(
+                  DayItemProperties(
+                    dayNumber: day.first,
+                    isInMonth: day.second,
+                    isCurrentDay: day.first == widget.currentDay && day.second,
+                    notFittedEventsCount:
+                        widget.overflowedEvents.weeks[row].eventCount[column],
+                    isSelected: _isSelectedDate(index),
+                    isInRange: _isDateInRange(index),
+                    isFirstInRange: _isDateFirstRange(index),
+                    isLastInRange: _isDateLastRange(index),
+                    date: tappedDate.dateTime,
+                  ),
+                )
               : DayItem(
                   isCurrentDay: day.first == widget.currentDay && day.second,
                   day: day.first,
